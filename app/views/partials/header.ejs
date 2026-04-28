@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vulnarable Web App</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="skull"></span> Vulnarable Web App
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/search">Search</a>
+      <a href="/comments">Comments</a>
+      <% if (currentUser) { %>
+        <a href="/profile?id=<%= currentUser.id %>">Profile</a>
+        <a href="/upload">Upload</a>
+        <a href="/change-password">Settings</a>
+        <a href="/logout" class="btn-logout">Logout (<%= currentUser.username %>)</a>
+      <% } else { %>
+        <a href="/login" class="btn-login">Login</a>
+      <% } %>
+    </div>
+  </nav>
+  <div class="container">

