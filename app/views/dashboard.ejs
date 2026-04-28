@@ -1,0 +1,46 @@
+<%- include('partials/header') %>
+
+<div class="section">
+  <div class="dashboard-header">
+    <h2>Welcome, <strong><%= currentUser.username %></strong></h2>
+    <span class="badge <%= currentUser.role === 'admin' ? 'admin' : 'user' %>"><%= currentUser.role %></span>
+  </div>
+
+  <div class="vuln-grid small">
+    <a href="/profile?id=<%= currentUser.id %>" class="dash-card">
+      <span></span> My Profile
+    </a>
+    <a href="/profile?id=1" class="dash-card idor">
+      <span></span> View Admin Profile <span class="tiny">(IDOR)</span>
+    </a>
+    <a href="/comments" class="dash-card">
+      <span></span> Comments
+    </a>
+    <a href="/upload" class="dash-card">
+      <span></span> Upload File
+    </a>
+    <a href="/search" class="dash-card">
+      <span></span> Search Posts
+    </a>
+    <a href="/change-password" class="dash-card">
+      <span></span> Change Password
+    </a>
+    <a href="/debug/session" class="dash-card danger" target="_blank">
+      <span></span> View Session Data
+    </a>
+  </div>
+
+  <div class="info-card card">
+    <h4>Vulnerability Map</h4>
+    <ul class="vuln-list">
+      <li><span class="tag sqli">SQLi</span> <a href="/login">Login form</a> & <a href="/search">Search</a> — raw string query</li>
+      <li><span class="tag xss">XSS</span> <a href="/comments">Comments</a> — unsanitized output via <code><%- %></code></li>
+      <li><span class="tag upload">Upload</span> <a href="/upload">File Upload</a> — no type/extension check</li>
+      <li><span class="tag idor">IDOR</span> <a href="/profile?id=1">Profile?id=X</a> — no authorization check</li>
+      <li><span class="tag auth">Auth</span> Plaintext passwords + weak session secret</li>
+      <li><span class="tag csrf">CSRF</span> <a href="/change-password">Change Password</a> — no CSRF token</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
